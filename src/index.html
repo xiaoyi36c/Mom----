@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+<title>MMO 喊话大师</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ===== 自定义标题栏 ===== -->
+<header id="titlebar">
+  <div class="tb-left">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3a9 9 0 109 9 7 7 0 01-9-9z"/>
+        <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"/>
+        <circle cx="20" cy="10" r="0.4" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <span class="tb-title">MMO 喊话大师</span>
+    <span class="tb-badge">v2.1 · 红月版</span>
+  </div>
+  <div class="tb-right">
+    <span class="tb-status" id="tbStatus"><i class="dot idle"></i>待机</span>
+    <button class="tb-btn" id="btnMin" title="最小化">
+      <svg viewBox="0 0 10 10" width="10" height="10"><path d="M0 5h10" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+    <button class="tb-btn" id="btnMax" title="最大化">
+      <svg viewBox="0 0 10 10" width="10" height="10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+    <button class="tb-btn tb-close" id="btnClose" title="关闭">
+      <svg viewBox="0 0 10 10" width="10" height="10"><path d="M0 0l10 10M10 0L0 10" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+  </div>
+</header>
+
+<div id="app">
+  <!-- ===== 侧边导航 ===== -->
+  <nav id="sidebar">
+    <div class="nav-group">
+      <div class="nav-label">工作区</div>
+      <button class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span>工作台</span>
+      </button>
+      <button class="nav-item" data-page="custom">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 14h6M9 18h4"/></svg>
+        <span>自定义文案</span>
+        <em class="nav-count" id="navCustomCount">0</em>
+      </button>
+      <button class="nav-item" data-page="sources">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
+        <span>自动数据源</span>
+        <em class="nav-count" id="navSourceCount">0</em>
+      </button>
+      <button class="nav-item" data-page="params">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33h0a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51h0a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v0a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>运行参数</span>
+      </button>
+      <button class="nav-item" data-page="logs">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+        <span>运行日志</span>
+      </button>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">关于</div>
+      <button class="nav-item" data-page="about">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>关于应用</span>
+      </button>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="engine-card">
+        <div class="engine-row"><i class="dot idle" id="engineDot"></i><span id="engineText">引擎待机</span></div>
+        <div class="engine-sub" id="engineSub">就绪，等待任务</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== 主内容 ===== -->
+  <main id="main">
+
+    <!-- 工作台 -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-head">
+        <div>
+          <h1>工作台</h1>
+          <p class="page-sub">选择文案来源模式，一键启动世界频道喊话</p>
+        </div>
+        <div class="quick-actions">
+          <button class="btn btn-primary" id="btnStart">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><polygon points="6 3 21 12 6 21 6 3"/></svg>
+            启动任务
+          </button>
+          <button class="btn btn-danger" id="btnStop" disabled>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+            停止
+          </button>
+        </div>
+      </div>
+
+      <!-- 模式切换 -->
+      <div class="mode-toggle" id="modeToggle">
+        <button class="mode-btn active" data-mode="custom">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+          <div class="mode-text">
+            <b>自定义文案</b>
+            <span>手动管理文案池，随机抽取</span>
+          </div>
+        </button>
+        <button class="mode-btn" data-mode="auto">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
+          <div class="mode-text">
+            <b>自动获取文案</b>
+            <span>API 在线拉取，过滤后发送</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- 模式状态卡 -->
+      <div class="mode-summary" id="modeSummary">
+        <div class="ms-icon" id="msIcon">📝</div>
+        <div class="ms-body">
+          <div class="ms-title" id="msTitle">自定义文案模式</div>
+          <div class="ms-desc" id="msDesc">从文案池中随机抽取，发送完后自动循环</div>
+        </div>
+        <div class="ms-stat">
+          <div class="ms-stat-num" id="msStatNum">0</div>
+          <div class="ms-stat-label" id="msStatLabel">可用文案</div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon ic-send"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
+          <div class="stat-info">
+            <div class="stat-value" id="statSent">0</div>
+            <div class="stat-label">已发送</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ic-time"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="stat-info">
+            <div class="stat-value" id="statElapsed">00:00</div>
+            <div class="stat-label">运行时长</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ic-src"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/></svg></div>
+          <div class="stat-info">
+            <div class="stat-value" id="statPool">0</div>
+            <div class="stat-label" id="statPoolLabel">文案池大小</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ic-loop"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg></div>
+          <div class="stat-info">
+            <div class="stat-value" id="statLoop">∞</div>
+            <div class="stat-label">循环次数</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="card live-card">
+          <div class="card-head">
+            <h3>实时动态</h3>
+            <span class="phase-chip" id="phaseChip">空闲</span>
+          </div>
+          <div class="current-source" id="currentSource">—</div>
+          <div class="current-text" id="currentText">启动任务后，最新获取或抽取的文案将展示在这里…</div>
+          <div class="progress-wrap" id="progressWrap" hidden>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-label" id="progressLabel">下一轮 0s</div>
+          </div>
+        </div>
+        <div class="card log-mini-card">
+          <div class="card-head">
+            <h3>最近日志</h3>
+            <button class="link-btn" data-goto="logs">查看全部 →</button>
+          </div>
+          <div class="log-mini" id="logMini"></div>
+        </div>
+      </div>
+
+      <div class="card tip-card">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>提示：启动后请 <b>3 秒内切换到目标游戏聊天窗口</b>，工具将自动执行「复制 → 粘贴 → 回车」。任务运行期间请勿移动鼠标焦点或切换窗口。</span>
+      </div>
+    </section>
+
+    <!-- 自定义文案 -->
+    <section class="page" id="page-custom">
+      <div class="page-head">
+        <div>
+          <h1>自定义文案</h1>
+          <p class="page-sub">手动维护你要喊的话，支持批量粘贴与单条编辑</p>
+        </div>
+        <div class="quick-actions">
+          <button class="btn btn-ghost" id="btnClearCustom">清空全部</button>
+          <button class="btn btn-primary" id="btnAddCustom">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            添加单条
+          </button>
+        </div>
+      </div>
+
+      <div class="card bulk-card">
+        <div class="card-head">
+          <h3>批量导入</h3>
+          <span class="dim">一行一条，或用 <code>---</code> 分隔</span>
+        </div>
+        <textarea id="bulkInput" class="bulk-textarea" placeholder="例：&#10;今晚 8 点组团副本开荒，来的++++&#10;招活跃队友，长期收人&#10;---&#10;江湖路远，武运昌隆"></textarea>
+        <div class="bulk-actions">
+          <span class="dim" id="bulkHint">支持换行或 --- 分隔，自动去除空行</span>
+          <button class="btn btn-primary" id="btnBulkImport">导入到文案库</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>文案库 <span class="dim" id="customCount">0 条</span></h3>
+          <span class="dim">切换为「自定义文案」模式后，任务会从这里随机抽取</span>
+        </div>
+        <div id="customList" class="custom-list"></div>
+        <div id="customEmpty" class="empty-state" hidden>
+          <div class="empty-icon">📝</div>
+          <p>文案库还是空的</p>
+          <span class="dim">使用上方批量导入或点击「添加单条」开始</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 数据源 -->
+    <section class="page" id="page-sources">
+      <div class="page-head">
+        <div>
+          <h1>自动数据源</h1>
+          <p class="page-sub">管理文案 API 接口，任务运行时随机调用</p>
+        </div>
+        <div class="quick-actions">
+          <button class="btn btn-primary" id="btnAddSource">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            添加数据源
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="source-table-head">
+          <span class="col-status">状态</span>
+          <span class="col-name">名称</span>
+          <span class="col-url">接口地址</span>
+          <span class="col-type">类型</span>
+          <span class="col-field">JSON 字段</span>
+          <span class="col-op">操作</span>
+        </div>
+        <div id="sourceList"></div>
+      </div>
+    </section>
+
+    <!-- 参数 -->
+    <section class="page" id="page-params">
+      <div class="page-head">
+        <div>
+          <h1>运行参数</h1>
+          <p class="page-sub">调整发送节奏与文案过滤规则，保存后自动持久化</p>
+        </div>
+        <div class="quick-actions">
+          <button class="btn btn-ghost" id="btnResetParams">恢复默认</button>
+          <button class="btn btn-primary" id="btnSaveParams">保存参数</button>
+        </div>
+      </div>
+
+      <div class="params-grid">
+        <div class="card">
+          <div class="card-head"><h3>发送节奏</h3></div>
+          <div class="field">
+            <label>复制后等待 <em class="field-val" id="valCopyDelay">2s</em></label>
+            <input type="range" id="paramCopyDelay" min="1" max="30" step="1" />
+          </div>
+          <div class="field">
+            <label>发送后等待 <em class="field-val" id="valAfterDelay">10s</em></label>
+            <input type="range" id="paramAfterDelay" min="1" max="120" step="1" />
+          </div>
+          <div class="field">
+            <label>循环次数（0 = 无限循环）</label>
+            <input type="number" id="paramLoop" min="0" max="9999" class="input" />
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>文案过滤</h3>
+            <span class="dim">仅自动模式生效</span>
+          </div>
+          <div class="field-row">
+            <div class="field half">
+              <label>最小字数</label>
+              <input type="number" id="paramMinLen" min="0" max="9999" class="input" />
+            </div>
+            <div class="field half">
+              <label>最大字数（0 = 不限）</label>
+              <input type="number" id="paramMaxLen" min="0" max="9999" class="input" />
+            </div>
+          </div>
+          <div class="field">
+            <label>正则提取 / 过滤 <span class="dim">（留空不处理，支持捕获组）</span></label>
+            <input type="text" id="paramRegex" class="input mono" placeholder="例：[\u4e00-\u9fa5，。！？]{10,}" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 日志 -->
+    <section class="page" id="page-logs">
+      <div class="page-head">
+        <div>
+          <h1>运行日志</h1>
+          <p class="page-sub">完整任务执行记录，实时刷新</p>
+        </div>
+        <div class="quick-actions">
+          <button class="btn btn-ghost" id="btnClearLogs">清空日志</button>
+        </div>
+      </div>
+      <div class="card log-card">
+        <div class="terminal" id="terminal"></div>
+      </div>
+    </section>
+
+    <!-- 关于 -->
+    <section class="page" id="page-about">
+      <div class="page-head">
+        <div>
+          <h1>关于应用</h1>
+          <p class="page-sub">产品信息与技术架构</p>
+        </div>
+      </div>
+      <div class="about-grid">
+        <div class="card about-card">
+          <div class="about-logo">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a9 9 0 109 9 7 7 0 01-9-9z"/>
+              <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"/>
+              <circle cx="20" cy="10" r="0.4" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
+          <h2>MMO 喊话大师</h2>
+          <p class="ver">MMO 游戏工具 · Electron · Windows</p>
+          <p class="about-desc">面向 MMO 玩家的世界频道自动喊话工具。支持「自定义文案池」与「自动 API 获取」双模式，自动执行「复制 → 粘贴 → 回车」闭环。可用于招人、串频道、发布活动等多种场景。</p>
+          <div class="about-meta">
+            <div class="meta-item"><span>引擎</span><b>Node.js + PowerShell SendKeys</b></div>
+            <div class="meta-item"><span>界面</span><b>Chromium / 原生渲染</b></div>
+            <div class="meta-item"><span>数据</span><b>本地 JSON 持久化</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="renderer.js"></script>
+</body>
+</html>
